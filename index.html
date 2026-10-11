@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>School Date Sheet Generator</title>
-
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#075985">
 <style>
 @font-face {
   font-family: "JameelNooriNastaleeq";
@@ -760,5 +761,17 @@ html[lang="ur"] .notice{text-align:right}
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./service-worker.js")
+      .catch(function (error) {
+        console.log("Offline setup error:", error);
+      });
+  });
+}
+</script>
+
 </body>
 </html>
