@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ur" dir="rtl">
 <head>
@@ -6,13 +7,14 @@
 <title>School Date Sheet Generator</title>
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#075985">
+
 <style>
-@font-face {
-  font-family: "JameelNooriNastaleeq";
-  src: url("https://cdn.jsdelivr.net/gh/tariq-abdullah/urdu-web-font-CDN/JameelNooriNastaleeq.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
+@font-face{
+  font-family:"JameelNooriNastaleeq";
+  src:url("https://cdn.jsdelivr.net/gh/tariq-abdullah/urdu-web-font-CDN/JameelNooriNastaleeq.woff") format("woff");
+  font-weight:normal;
+  font-style:normal;
+  font-display:swap;
 }
 
 *{box-sizing:border-box}
@@ -34,7 +36,6 @@ html[lang="ur"] .sheet{
 }
 
 .app{max-width:950px;margin:auto}
-
 h1{text-align:center;color:#075985;font-size:25px}
 
 .panel,.sheet{
@@ -46,7 +47,6 @@ h1{text-align:center;color:#075985;font-size:25px}
 }
 
 label{display:block;font-weight:bold;margin:12px 0 5px}
-
 input,select,button{font:inherit}
 
 input,select{
@@ -75,6 +75,8 @@ button{
 
 button.remove{background:#b91c1c}
 button.secondary{background:#475569}
+button.save{background:#15803d}
+button:disabled{opacity:.6;cursor:not-allowed}
 
 .actions{display:flex;flex-wrap:wrap;gap:5px}
 
@@ -88,7 +90,8 @@ button.secondary{background:#475569}
 .sheet{
   text-align:center;
   padding:22px;
-  overflow-wrap:anywhere;
+  overflow-wrap:normal;
+  word-break:normal;
 }
 
 #schoolTitle{font-size:28px;margin:5px 0 12px}
@@ -120,6 +123,7 @@ th,td{
   border:1px solid #555;
   padding:9px 5px;
   text-align:center;
+  font-weight:normal;
 }
 
 th{background:#e0f2fe}
@@ -127,36 +131,87 @@ th{background:#e0f2fe}
 .signatures{
   display:flex;
   justify-content:space-between;
+  align-items:flex-end;
   gap:20px;
   margin-top:40px;
+  direction:inherit;
 }
 
-.signatures span{
+.signature-block{
+  flex:1;
+  min-width:0;
   border-top:1px solid #333;
   padding-top:7px;
-  min-width:100px;
+  text-align:center;
+  overflow-wrap:normal;
+}
+
+.signature-output{
+  display:block;
+  width:auto;
+  max-width:100%;
+  height:55px;
+  object-fit:contain;
+  margin:0 auto 5px;
+}
+
+.signature-output[hidden]{display:none!important}
+
+.signature-tools canvas{
+  display:block;
+  width:100%;
+  height:120px;
+  border:2px dashed #94a3b8;
+  border-radius:8px;
+  background:white;
+  touch-action:none;
 }
 
 .notice{font-size:13px;color:#475569}
-
 [hidden]{display:none!important}
 
 html[lang="ur"] .notice{text-align:right}
+
+html[lang="ur"] #sheet,
+html[lang="ur"] #sheet *{
+  letter-spacing:0!important;
+  word-spacing:0!important;
+}
+
+html[lang="ur"] #sheet{
+  font-family:"JameelNooriNastaleeq",serif;
+}
+
+html[lang="ur"] #sheet th,
+html[lang="ur"] #sheet td{
+  word-break:normal;
+  overflow-wrap:normal;
+}
 
 @media(max-width:500px){
   .grid{grid-template-columns:1fr}
   #schoolTitle{font-size:22px}
   th,td{font-size:13px;padding:7px 3px}
+  .signatures{gap:12px}
+  .signature-block{font-size:14px}
+  .signature-output{height:45px}
 }
 
 @media print{
   @page{size:A4 portrait;margin:12mm}
   body{padding:0;background:white}
   .no-print{display:none!important}
-  .sheet{box-shadow:none;border-radius:0;margin:0;padding:0}
+  .sheet{
+    box-shadow:none;
+    border-radius:0;
+    margin:0;
+    padding:0;
+    overflow:visible;
+  }
   #schoolTitle{font-size:25px}
   table{break-inside:auto}
   tr{break-inside:avoid}
+  .signatures{break-inside:avoid}
 }
 </style>
 </head>
@@ -171,7 +226,6 @@ html[lang="ur"] .notice{text-align:right}
       <h2 id="settingsTitle">سیٹنگز</h2>
 
       <div class="grid">
-
         <div>
           <label id="languageLabel">زبان</label>
           <select id="language">
@@ -216,7 +270,6 @@ html[lang="ur"] .notice{text-align:right}
           <label id="paperTimeLabel">پیپر کا وقت</label>
           <input id="paperTime" value="9:00 AM to 12:00 PM">
         </div>
-
       </div>
 
       <h3 id="subjectsTitle">مضامین</h3>
@@ -233,6 +286,38 @@ html[lang="ur"] .notice{text-align:right}
     </div>
   </div>
 
+  <!-- Signature controls -->
+  <div class="panel no-print signature-tools">
+    <h3 id="signatureHeading">دستخط کریں / Signatures</h3>
+
+    <div class="grid">
+      <div>
+        <h4 id="teacherToolsTitle">دستخط استاد</h4>
+        <canvas id="teacherCanvas" aria-label="Teacher signature drawing area"></canvas>
+
+        <label id="teacherUploadLabel" for="teacherUpload">دستخط کی تصویر اپ لوڈ کریں</label>
+        <input type="file" id="teacherUpload" accept="image/png,image/jpeg,image/webp">
+
+        <button type="button" class="secondary" id="teacherClear">دستخط صاف کریں</button>
+      </div>
+
+      <div>
+        <h4 id="principalToolsTitle">دستخط پرنسپل</h4>
+        <canvas id="principalCanvas" aria-label="Principal signature drawing area"></canvas>
+
+        <label id="principalUploadLabel" for="principalUpload">دستخط کی تصویر اپ لوڈ کریں</label>
+        <input type="file" id="principalUpload" accept="image/png,image/jpeg,image/webp">
+
+        <button type="button" class="secondary" id="principalClear">دستخط صاف کریں</button>
+      </div>
+    </div>
+
+    <p class="notice" id="signatureHelp">
+      خانے میں انگلی سے دستخط کریں یا گیلری سے تصویر منتخب کریں۔
+    </p>
+  </div>
+
+  <!-- Date sheet -->
   <section class="sheet" id="sheet">
     <img id="logoSheet" alt="School logo">
 
@@ -261,40 +346,62 @@ html[lang="ur"] .notice{text-align:right}
           <th id="timeHead">وقت</th>
         </tr>
       </thead>
-
       <tbody id="tableBody"></tbody>
     </table>
 
     <div class="signatures">
-      <span id="teacherSign">دستخط استاد</span>
-      <span id="principalSign">دستخط پرنسپل</span>
+      <div class="signature-block">
+        <img id="teacherSignatureOutput" class="signature-output"
+             alt="Teacher Signature" hidden>
+        <span id="teacherSign">دستخط استاد</span>
+      </div>
+
+      <div class="signature-block">
+        <img id="principalSignatureOutput" class="signature-output"
+             alt="Principal Signature" hidden>
+        <span id="principalSign">دستخط پرنسپل</span>
+      </div>
     </div>
   </section>
 
+  <!-- Save, download and print -->
   <div class="panel no-print">
     <h3 id="downloadTitle">ڈاؤن لوڈ / پرنٹ</h3>
 
-    <button type="button" id="pngBtn">PNG ڈاؤن لوڈ کریں</button>
-    <button type="button" id="printBtn">پرنٹ / PDF محفوظ کریں</button>
+    <div class="actions">
+      <button type="button" id="saveBtn" class="save">ڈیٹ شیٹ محفوظ کریں</button>
+      <button type="button" id="loadBtn" class="secondary">محفوظ ڈیٹ شیٹ کھولیں</button>
+      <button type="button" id="pngBtn">PNG ڈاؤن لوڈ کریں</button>
+      <button type="button" id="printBtn">پرنٹ / PDF محفوظ کریں</button>
+    </div>
 
     <p class="notice" id="downloadHelp">
-      PNG ڈاؤن لوڈ کرنے کے لیے انٹرنیٹ ضروری ہے۔
+      محفوظ کرنے کا بٹن ڈیٹ شیٹ کو اسی براؤزر میں محفوظ کرتا ہے۔
     </p>
+
+    <p class="notice" id="saveStatus" aria-live="polite"></p>
   </div>
 
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
 (function(){
 
   const $ = id => document.getElementById(id);
+  const STORAGE_KEY = "schoolDateSheetSaved_v2";
 
   let logoData = "";
   let subjectCounter = 0;
 
-  const words = {
+  const signatureData = {
+    teacher:"",
+    principal:""
+  };
 
-    ur: {
+  const words = {
+    ur:{
       appTitle:"اسکول ڈیٹ شیٹ جنریٹر",
       settingsTitle:"سیٹنگز",
       languageLabel:"زبان",
@@ -313,7 +420,17 @@ html[lang="ur"] .notice{text-align:right}
       downloadTitle:"ڈاؤن لوڈ / پرنٹ",
       pngBtn:"PNG ڈاؤن لوڈ کریں",
       printBtn:"پرنٹ / PDF محفوظ کریں",
-      downloadHelp:"PNG ڈاؤن لوڈ کرنے کے لیے انٹرنیٹ ضروری ہے۔",
+      saveBtn:"ڈیٹ شیٹ محفوظ کریں",
+      loadBtn:"محفوظ ڈیٹ شیٹ کھولیں",
+      downloadHelp:"محفوظ کرنے کا بٹن ڈیٹ شیٹ کو اسی براؤزر میں محفوظ کرتا ہے۔",
+      signatureHeading:"دستخط کریں",
+      teacherToolsTitle:"دستخط استاد",
+      principalToolsTitle:"دستخط پرنسپل",
+      teacherUploadLabel:"دستخط کی تصویر اپ لوڈ کریں",
+      principalUploadLabel:"دستخط کی تصویر اپ لوڈ کریں",
+      teacherClear:"دستخط صاف کریں",
+      principalClear:"دستخط صاف کریں",
+      signatureHelp:"خانے میں انگلی سے دستخط کریں یا گیلری سے تصویر منتخب کریں۔",
       class:"جماعت",
       session:"تعلیمی سال",
       sr:"نمبر",
@@ -333,12 +450,16 @@ html[lang="ur"] .notice{text-align:right}
       remove:"حذف کریں",
       noDate:"—",
       pngError:"PNG لائبریری لوڈ نہیں ہوئی۔ انٹرنیٹ چیک کریں۔",
-      pngFail:"PNG نہیں بنی۔ انٹرنیٹ چیک کرکے دوبارہ کوشش کریں۔",
+      pngFail:"PNG نہیں بنی۔ دوبارہ کوشش کریں۔",
+      saveSuccess:"ڈیٹ شیٹ براؤزر میں محفوظ ہوگئی۔",
+      loadSuccess:"محفوظ ڈیٹ شیٹ کھول دی گئی۔",
+      saveError:"ڈیٹ شیٹ محفوظ نہیں ہوسکی۔ براہ کرم براؤزر کی اسٹوریج چیک کریں۔",
+      noSaved:"ابھی کوئی محفوظ ڈیٹ شیٹ نہیں ملی۔",
       subjects:["اردو","انگریزی","ریاضی","سائنس","اسلامیات"],
       days:["اتوار","پیر","منگل","بدھ","جمعرات","جمعہ","ہفتہ"]
     },
 
-    en: {
+    en:{
       appTitle:"School Date Sheet Generator",
       settingsTitle:"Settings",
       languageLabel:"Language",
@@ -357,7 +478,17 @@ html[lang="ur"] .notice{text-align:right}
       downloadTitle:"Download / Print",
       pngBtn:"Download PNG",
       printBtn:"Print / Save PDF",
-      downloadHelp:"An internet connection is required to download PNG.",
+      saveBtn:"Save Date Sheet",
+      loadBtn:"Open Saved Date Sheet",
+      downloadHelp:"The save button stores your date sheet in this browser.",
+      signatureHeading:"Add Signatures",
+      teacherToolsTitle:"Teacher Signature",
+      principalToolsTitle:"Principal Signature",
+      teacherUploadLabel:"Upload Signature Image",
+      principalUploadLabel:"Upload Signature Image",
+      teacherClear:"Clear Signature",
+      principalClear:"Clear Signature",
+      signatureHelp:"Draw with your finger or select an image from your gallery.",
       class:"Class",
       session:"Academic Session",
       sr:"No.",
@@ -377,11 +508,14 @@ html[lang="ur"] .notice{text-align:right}
       remove:"Remove",
       noDate:"—",
       pngError:"The PNG library did not load. Check your internet connection.",
-      pngFail:"PNG could not be created. Check your internet and try again.",
+      pngFail:"PNG could not be created. Please try again.",
+      saveSuccess:"Date sheet saved in this browser.",
+      loadSuccess:"Saved date sheet loaded.",
+      saveError:"Could not save. Please check browser storage.",
+      noSaved:"No saved date sheet was found.",
       subjects:["Urdu","English","Mathematics","Science","Islamiyat"],
       days:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
     }
-
   };
 
   function currentLang(){
@@ -400,20 +534,15 @@ html[lang="ur"] .notice{text-align:right}
   }
 
   function addDays(dateString,n){
-    const d=dateString
-      ?new Date(dateString+"T12:00:00")
-      :new Date();
-
+    const d=dateString ? new Date(dateString+"T12:00:00") : new Date();
     d.setDate(d.getDate()+n);
     return dateValue(d);
   }
 
-  function addSubject(name="",date=""){
+  function addSubject(name="",date="",manuallyChanged=false){
     subjectCounter++;
 
-    const id=subjectCounter;
     const box=document.createElement("div");
-
     box.className="panel";
     box.dataset.subjectRow="1";
 
@@ -427,7 +556,6 @@ html[lang="ur"] .notice{text-align:right}
     nameInput.className="subjectName";
     nameInput.value=name;
     nameInput.placeholder=tr("namePlaceholder");
-
     nameLabel.appendChild(nameInput);
 
     const dateLabel=document.createElement("label");
@@ -436,10 +564,11 @@ html[lang="ur"] .notice{text-align:right}
     const dateInput=document.createElement("input");
     dateInput.type="date";
     dateInput.className="subjectDate";
-    dateInput.value=date||addDays($("startDate").value,id-1);
+    dateInput.value=date||addDays($("startDate").value,subjectCounter-1);
+
+    if(manuallyChanged) dateInput.dataset.manuallyChanged="1";
 
     dateLabel.appendChild(dateInput);
-
     grid.append(nameLabel,dateLabel);
 
     const remove=document.createElement("button");
@@ -456,25 +585,96 @@ html[lang="ur"] .notice{text-align:right}
     $("subjects").appendChild(box);
   }
 
-  function updateInterface(){
+  function getSubjects(){
+    return [...document.querySelectorAll("[data-subject-row]")].map(row=>({
+      name:row.querySelector(".subjectName").value,
+      date:row.querySelector(".subjectDate").value,
+      manuallyChanged:row.querySelector(".subjectDate").dataset.manuallyChanged==="1"
+    }));
+  }
 
+  function renderSheet(){
     const lang=currentLang();
     const w=words[lang];
 
     document.documentElement.lang=lang;
     document.documentElement.dir=lang==="ur"?"rtl":"ltr";
 
+    $("schoolTitle").textContent=$("school").value.trim()||w.defaultSchool;
+    $("examTitle").textContent=$("exam").value.trim()||w.defaultExam;
+    $("classOut").textContent=$("className").value||w.defaultClass;
+    $("sessionOut").textContent=$("session").value;
+
+    const tbody=$("tableBody");
+    tbody.replaceChildren();
+
+    document.querySelectorAll("[data-subject-row]").forEach((row,i)=>{
+      const name=row.querySelector(".subjectName").value.trim();
+      const dateStr=row.querySelector(".subjectDate").value;
+
+      if(!name&&!dateStr)return;
+
+      const trEl=document.createElement("tr");
+      const date=dateStr?new Date(dateStr+"T12:00:00"):null;
+
+      const dateText=date
+        ?date.toLocaleDateString(lang==="ur"?"ur-PK":"en-GB")
+        :w.noDate;
+
+      const dayText=date?w.days[date.getDay()]:w.noDate;
+
+      [
+        String(i+1),
+        name||w.noDate,
+        dateText,
+        dayText,
+        $("paperTime").value||w.noDate
+      ].forEach(value=>{
+        const td=document.createElement("td");
+        td.textContent=value;
+        trEl.appendChild(td);
+      });
+
+      tbody.appendChild(trEl);
+    });
+
+    $("logoSheet").src=logoData;
+    $("logoSheet").style.display=logoData?"block":"none";
+
+    $("logoPreview").src=logoData;
+    $("logoPreview").hidden=!logoData;
+
+    ["teacher","principal"].forEach(type=>{
+      const output=$(type+"SignatureOutput");
+      output.hidden=!signatureData[type];
+
+      if(signatureData[type]){
+        output.src=signatureData[type];
+      }else{
+        output.removeAttribute("src");
+      }
+    });
+  }
+
+  function updateInterface(){
+    const lang=currentLang();
+    const w=words[lang];
+
+    document.documentElement.lang=lang;
+    document.documentElement.dir=lang==="ur"?"rtl":"ltr";
     document.title=w.appTitle;
 
-    const labels=[
+    [
       "appTitle","settingsTitle","languageLabel","schoolLabel",
       "logoLabel","removeLogo","examLabel","classInputLabel",
       "sessionInputLabel","startDateLabel","paperTimeLabel",
       "subjectsTitle","addSubject","generate","helpText",
-      "downloadTitle","pngBtn","printBtn","downloadHelp"
-    ];
-
-    labels.forEach(id=>{
+      "downloadTitle","pngBtn","printBtn","saveBtn","loadBtn",
+      "downloadHelp","signatureHeading","teacherToolsTitle",
+      "principalToolsTitle","teacherUploadLabel",
+      "principalUploadLabel","teacherClear","principalClear",
+      "signatureHelp"
+    ].forEach(id=>{
       $(id).textContent=w[id];
     });
 
@@ -495,11 +695,9 @@ html[lang="ur"] .notice{text-align:right}
     });
 
     document.querySelectorAll("[data-subject-row]").forEach(row=>{
-      row.querySelector("label").childNodes[0].textContent=w.nameLabel;
-
-      const dateLabel=row.querySelectorAll("label")[1];
-      dateLabel.childNodes[0].textContent=w.dateLabel;
-
+      const labels=row.querySelectorAll("label");
+      labels[0].childNodes[0].textContent=w.nameLabel;
+      labels[1].childNodes[0].textContent=w.dateLabel;
       row.querySelector(".subjectName").placeholder=w.namePlaceholder;
       row.querySelector(".remove").textContent=w.remove;
     });
@@ -507,71 +705,168 @@ html[lang="ur"] .notice{text-align:right}
     renderSheet();
   }
 
-  function renderSheet(){
+  // Signature drawing and image upload
+  function setupSignature(type){
+    const canvas=$(type+"Canvas");
+    const ctx=canvas.getContext("2d");
 
-    const lang=currentLang();
-    const w=words[lang];
+    let drawing=false;
+    let hasInk=false;
 
-    document.documentElement.lang=lang;
-    document.documentElement.dir=lang==="ur"?"rtl":"ltr";
+    function resizeCanvas(){
+      const rect=canvas.getBoundingClientRect();
+      const ratio=window.devicePixelRatio||1;
 
-    $("schoolTitle").textContent=
-      $("school").value.trim()||w.defaultSchool;
+      canvas.width=Math.round(rect.width*ratio);
+      canvas.height=Math.round(rect.height*ratio);
 
-    $("examTitle").textContent=
-      $("exam").value.trim()||w.defaultExam;
+      ctx.setTransform(ratio,0,0,ratio,0,0);
+      ctx.lineWidth=2;
+      ctx.lineCap="round";
+      ctx.lineJoin="round";
+      ctx.strokeStyle="#111827";
+    }
 
-    $("classOut").textContent=
-      $("className").value||w.defaultClass;
+    resizeCanvas();
 
-    $("sessionOut").textContent=$("session").value;
+    function position(e){
+      const rect=canvas.getBoundingClientRect();
+      return {x:e.clientX-rect.left,y:e.clientY-rect.top};
+    }
 
-    const tbody=$("tableBody");
-    tbody.replaceChildren();
+    canvas.addEventListener("pointerdown",e=>{
+      e.preventDefault();
+      drawing=true;
+      hasInk=true;
+      canvas.setPointerCapture(e.pointerId);
 
-    document.querySelectorAll("[data-subject-row]").forEach((row,i)=>{
-
-      const name=row.querySelector(".subjectName").value.trim();
-      const dateStr=row.querySelector(".subjectDate").value;
-
-      if(!name&&!dateStr)return;
-
-      const trEl=document.createElement("tr");
-
-      const date=dateStr
-        ?new Date(dateStr+"T12:00:00")
-        :null;
-
-      const dateText=date
-        ?date.toLocaleDateString(lang==="ur"?"ur-PK":"en-GB")
-        :w.noDate;
-
-      const dayText=date
-        ?w.days[date.getDay()]
-        :w.noDate;
-
-      [
-        String(i+1),
-        name||w.noDate,
-        dateText,
-        dayText,
-        $("paperTime").value||w.noDate
-      ].forEach(value=>{
-
-        const td=document.createElement("td");
-        td.textContent=value;
-        trEl.appendChild(td);
-
-      });
-
-      tbody.appendChild(trEl);
+      const p=position(e);
+      ctx.beginPath();
+      ctx.moveTo(p.x,p.y);
     });
 
-    $("logoSheet").src=logoData;
-    $("logoSheet").style.display=logoData?"block":"none";
+    canvas.addEventListener("pointermove",e=>{
+      if(!drawing)return;
+      e.preventDefault();
 
-    $("logoPreview").src=logoData;
-    $("logoPreview").hidden=!logoData;
+      const p=position(e);
+      ctx.lineTo(p.x,p.y);
+      ctx.stroke();
+    });
+
+    function finishDrawing(){
+      if(!drawing)return;
+      drawing=false;
+
+      if(hasInk){
+        signatureData[type]=canvas.toDataURL("image/png");
+        renderSheet();
+      }
+    }
+
+    canvas.addEventListener("pointerup",finishDrawing);
+    canvas.addEventListener("pointercancel",finishDrawing);
+
+    $(type+"Upload").addEventListener("change",e=>{
+      const file=e.target.files[0];
+      if(!file)return;
+
+      if(!file.type.startsWith("image/")){
+        alert("Please select an image file.");
+        e.target.value="";
+        return;
+      }
+
+      const reader=new FileReader();
+
+      reader.onload=()=>{
+        signatureData[type]=reader.result;
+        hasInk=false;
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        renderSheet();
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    $(type+"Clear").addEventListener("click",()=>{
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      hasInk=false;
+      drawing=false;
+      signatureData[type]="";
+      $(type+"Upload").value="";
+      renderSheet();
+    });
+  }
+
+  // Save the complete date sheet in browser storage
+  function saveDateSheet(){
+    try{
+      const data={
+        language:currentLang(),
+        school:$("school").value,
+        exam:$("exam").value,
+        className:$("className").value,
+        session:$("session").value,
+        startDate:$("startDate").value,
+        paperTime:$("paperTime").value,
+        logoData:logoData,
+        subjects:getSubjects(),
+        signatures:{
+          teacher:signatureData.teacher,
+          principal:signatureData.principal
+        }
+      };
+
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+      $("saveStatus").textContent=tr("saveSuccess");
+    }catch(error){
+      $("saveStatus").textContent=tr("saveError");
+    }
+  }
+
+  function loadDateSheet(){
+    try{
+      const saved=localStorage.getItem(STORAGE_KEY);
+
+      if(!saved){
+        $("saveStatus").textContent=tr("noSaved");
+        return;
+      }
+
+      const data=JSON.parse(saved);
+
+      $("language").value=data.language||"ur";
+      $("school").value=data.school||"";
+      $("exam").value=data.exam||"";
+      $("className").value=data.className||"";
+      $("session").value=data.session||"";
+      $("startDate").value=data.startDate||dateValue(new Date());
+      $("paperTime").value=data.paperTime||"";
+
+      logoData=data.logoData||"";
+      signatureData.teacher=data.signatures?.teacher||"";
+      signatureData.principal=data.signatures?.principal||"";
+
+      $("subjects").replaceChildren();
+      subjectCounter=0;
+
+      (data.subjects||[]).forEach(s=>{
+        addSubject(s.name,s.date,s.manuallyChanged);
+      });
+
+      // Rebuild signature canvases from their saved images.
+      ["teacher","principal"].forEach(type=>{
+        const canvas=$(type+"Canvas");
+        const ctx=canvas.getContext("2d");
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+      });
+
+      updateInterface();
+      $("saveStatus").textContent=tr("loadSuccess");
+    }catch(error){
+      $("saveStatus").textContent=tr("saveError");
+    }
   }
 
   $("addSubject").addEventListener("click",()=>{
@@ -584,9 +879,7 @@ html[lang="ur"] .notice{text-align:right}
   [
     "school","exam","className","session","paperTime","startDate"
   ].forEach(id=>{
-
     $(id).addEventListener("input",()=>{
-
       if(id==="startDate"){
         document.querySelectorAll(".subjectDate").forEach((el,i)=>{
           if(!el.dataset.manuallyChanged){
@@ -594,47 +887,38 @@ html[lang="ur"] .notice{text-align:right}
           }
         });
       }
-
       renderSheet();
     });
-
   });
 
   $("subjects").addEventListener("change",e=>{
-
     if(e.target.classList.contains("subjectDate")){
       e.target.dataset.manuallyChanged="1";
     }
-
     renderSheet();
   });
 
   $("subjects").addEventListener("input",renderSheet);
 
   $("language").addEventListener("change",()=>{
-
     const oldLang=window.previousDateSheetLanguage||"ur";
     const newLang=currentLang();
 
     const oldWords=words[oldLang];
     const newWords=words[newLang];
 
-    // Default school name ko translate karein
     if($("school").value.trim()===oldWords.defaultSchool){
       $("school").value=newWords.defaultSchool;
     }
 
-    // Default exam name ko translate karein
     if($("exam").value.trim()===oldWords.defaultExam){
       $("exam").value=newWords.defaultExam;
     }
 
-    // Default class ko translate karein
     if($("className").value.trim()===oldWords.defaultClass){
       $("className").value=newWords.defaultClass;
     }
 
-    // Default paper time ko translate karein
     if($("paperTime").value.trim()===oldWords.defaultTime){
       $("paperTime").value=newWords.defaultTime;
     }
@@ -652,50 +936,32 @@ html[lang="ur"] .notice{text-align:right}
       "Islamiyat":"اسلامیات"
     };
 
-    const existing=[
-      ...document.querySelectorAll("[data-subject-row]")
-    ].map(row=>({
-
-      name:row.querySelector(".subjectName").value,
-      date:row.querySelector(".subjectDate").value,
-      manuallyChanged:row.querySelector(".subjectDate").dataset.manuallyChanged
-
-    }));
+    const existing=getSubjects();
 
     $("subjects").replaceChildren();
+    subjectCounter=0;
 
     existing.forEach(s=>{
-
-      const translatedName=translations[s.name.trim()]||s.name;
-
-      addSubject(translatedName,s.date);
-
-      const lastRow=$("subjects").lastElementChild;
-      const dateInput=lastRow.querySelector(".subjectDate");
-
-      if(s.manuallyChanged){
-        dateInput.dataset.manuallyChanged="1";
-      }
-
+      addSubject(
+        translations[s.name.trim()]||s.name,
+        s.date,
+        s.manuallyChanged
+      );
     });
 
     window.previousDateSheetLanguage=newLang;
-
     updateInterface();
   });
 
   $("logoFile").addEventListener("change",e=>{
-
     const file=e.target.files[0];
     if(!file)return;
 
     const reader=new FileReader();
-
     reader.onload=()=>{
       logoData=reader.result;
       renderSheet();
     };
-
     reader.readAsDataURL(file);
   });
 
@@ -705,13 +971,15 @@ html[lang="ur"] .notice{text-align:right}
     renderSheet();
   });
 
+  $("saveBtn").addEventListener("click",saveDateSheet);
+  $("loadBtn").addEventListener("click",loadDateSheet);
+
   $("printBtn").addEventListener("click",()=>{
     renderSheet();
     window.print();
   });
 
   $("pngBtn").addEventListener("click",async()=>{
-
     renderSheet();
 
     if(typeof window.html2canvas!=="function"){
@@ -719,28 +987,37 @@ html[lang="ur"] .notice{text-align:right}
       return;
     }
 
-    try{
+    const button=$("pngBtn");
+    button.disabled=true;
 
-      await document.fonts.ready;
+    try{
+      if(document.fonts&&document.fonts.load){
+        await document.fonts.load('16px "JameelNooriNastaleeq"');
+      }
+
+      if(document.fonts){
+        await document.fonts.ready;
+      }
 
       const canvas=await window.html2canvas($("sheet"),{
-        scale:2,
+        scale:3,
         backgroundColor:"#ffffff",
-        useCORS:true
+        useCORS:true,
+        logging:false
       });
 
       const link=document.createElement("a");
       link.download="school-date-sheet.png";
       link.href=canvas.toDataURL("image/png");
       link.click();
-
-    }catch(err){
+    }catch(error){
       alert(tr("pngFail"));
+    }finally{
+      button.disabled=false;
     }
-
   });
 
-  // Shuru mein Urdu defaults
+  // Initial defaults
   const today=dateValue(new Date());
 
   $("startDate").value=today;
@@ -755,19 +1032,24 @@ html[lang="ur"] .notice{text-align:right}
 
   window.previousDateSheetLanguage="ur";
 
+  setupSignature("teacher");
+  setupSignature("principal");
   updateInterface();
+
+  // Automatically restore the last saved date sheet when the app opens.
+  if(localStorage.getItem(STORAGE_KEY)){
+    loadDateSheet();
+  }
 
 })();
 </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", function () {
+if("serviceWorker" in navigator){
+  window.addEventListener("load",function(){
     navigator.serviceWorker.register("./service-worker.js")
-      .catch(function (error) {
-        console.log("Offline setup error:", error);
+      .catch(function(error){
+        console.log("Offline setup error:",error);
       });
   });
 }
