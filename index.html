@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ur" dir="rtl">
 <head>
@@ -7,7 +6,6 @@
 <title>School Date Sheet Generator</title>
 
 <style>
-/* Jameel Noori Nastaleeq Urdu Font */
 @font-face {
   font-family: "JameelNooriNastaleeq";
   src: url("https://cdn.jsdelivr.net/gh/tariq-abdullah/urdu-web-font-CDN/JameelNooriNastaleeq.woff") format("woff");
@@ -16,47 +14,133 @@
   font-display: swap;
 }
 
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:#f1f5f9;
+  color:#172033;
+  font-family:Arial,sans-serif;
+  padding:12px;
+}
+
 html[lang="ur"] body,
 html[lang="ur"] input,
 html[lang="ur"] select,
 html[lang="ur"] button,
-html[lang="ur"] .sheet {
-  font-family: "JameelNooriNastaleeq", serif;
+html[lang="ur"] .sheet{
+  font-family:"JameelNooriNastaleeq",serif;
 }
 
-/* Existing design */
-*{box-sizing:border-box}
-body{margin:0;background:#f1f5f9;color:#172033;
-font-family:Arial,sans-serif;padding:12px}
 .app{max-width:950px;margin:auto}
+
 h1{text-align:center;color:#075985;font-size:25px}
-.panel,.sheet{background:white;border-radius:12px;
-padding:16px;margin:14px 0;box-shadow:0 2px 9px #0001}
+
+.panel,.sheet{
+  background:white;
+  border-radius:12px;
+  padding:16px;
+  margin:14px 0;
+  box-shadow:0 2px 9px #0001;
+}
+
 label{display:block;font-weight:bold;margin:12px 0 5px}
+
 input,select,button{font:inherit}
-input,select{width:100%;padding:11px;border:1px solid #cbd5e1;
-border-radius:7px;background:white}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-button{padding:11px 14px;border:0;border-radius:7px;
-background:#0369a1;color:white;cursor:pointer;margin:5px 2px}
+
+input,select{
+  width:100%;
+  padding:11px;
+  border:1px solid #cbd5e1;
+  border-radius:7px;
+  background:white;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+
+button{
+  padding:11px 14px;
+  border:0;
+  border-radius:7px;
+  background:#0369a1;
+  color:white;
+  cursor:pointer;
+  margin:5px 2px;
+}
+
 button.remove{background:#b91c1c}
 button.secondary{background:#475569}
+
 .actions{display:flex;flex-wrap:wrap;gap:5px}
-#logoPreview{max-width:100px;max-height:80px;display:block;margin:8px 0}
-.sheet{text-align:center;padding:22px;overflow-wrap:anywhere}
+
+#logoPreview{
+  max-width:100px;
+  max-height:80px;
+  display:block;
+  margin:8px 0;
+}
+
+.sheet{
+  text-align:center;
+  padding:22px;
+  overflow-wrap:anywhere;
+}
+
 #schoolTitle{font-size:28px;margin:5px 0 12px}
-#logoSheet{max-width:90px;max-height:75px;display:none;margin:auto}
+
+#logoSheet{
+  max-width:90px;
+  max-height:75px;
+  display:none;
+  margin:auto;
+}
+
 #examTitle{margin:5px}
-.meta{display:flex;justify-content:space-between;gap:8px;
-flex-wrap:wrap;margin:18px 0}
-table{width:100%;border-collapse:collapse;margin-top:12px}
-th,td{border:1px solid #555;padding:9px 5px;text-align:center}
+
+.meta{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:18px 0;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:12px;
+}
+
+th,td{
+  border:1px solid #555;
+  padding:9px 5px;
+  text-align:center;
+}
+
 th{background:#e0f2fe}
-.signatures{display:flex;justify-content:space-between;
-gap:20px;margin-top:40px}
-.signatures span{border-top:1px solid #333;padding-top:7px;min-width:100px}
+
+.signatures{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  margin-top:40px;
+}
+
+.signatures span{
+  border-top:1px solid #333;
+  padding-top:7px;
+  min-width:100px;
+}
+
 .notice{font-size:13px;color:#475569}
+
 [hidden]{display:none!important}
+
+html[lang="ur"] .notice{text-align:right}
 
 @media(max-width:500px){
   .grid{grid-template-columns:1fr}
@@ -78,14 +162,17 @@ gap:20px;margin-top:40px}
 
 <body>
 <div class="app">
+
   <div class="no-print">
-    <h1>School Date Sheet Generator</h1>
+    <h1 id="appTitle">اسکول ڈیٹ شیٹ جنریٹر</h1>
+
     <div class="panel">
-      <h2>Settings / سیٹنگز</h2>
+      <h2 id="settingsTitle">سیٹنگز</h2>
 
       <div class="grid">
+
         <div>
-          <label>Language / زبان</label>
+          <label id="languageLabel">زبان</label>
           <select id="language">
             <option value="ur">اردو</option>
             <option value="en">English</option>
@@ -93,63 +180,74 @@ gap:20px;margin-top:40px}
         </div>
 
         <div>
-          <label>School Name</label>
+          <label id="schoolLabel">اسکول کا نام</label>
           <input id="school" value="آپ کے اسکول کا نام">
         </div>
 
         <div>
-          <label>School Logo</label>
+          <label id="logoLabel">اسکول کا لوگو</label>
           <input type="file" id="logoFile" accept="image/*">
           <img id="logoPreview" hidden alt="Logo preview">
-          <button type="button" class="secondary" id="removeLogo">Remove Logo</button>
+          <button type="button" class="secondary" id="removeLogo">لوگو ہٹائیں</button>
         </div>
 
         <div>
-          <label>Exam Name / امتحان</label>
+          <label id="examLabel">امتحان کا نام</label>
           <input id="exam" value="سالانہ امتحان">
         </div>
 
         <div>
-          <label>Class / جماعت</label>
+          <label id="classInputLabel">جماعت</label>
           <input id="className" value="5th Class">
         </div>
 
         <div>
-          <label>Academic Session</label>
+          <label id="sessionInputLabel">تعلیمی سال</label>
           <input id="session" value="2026-2027">
         </div>
 
         <div>
-          <label>Start Date / آغاز</label>
+          <label id="startDateLabel">آغاز کی تاریخ</label>
           <input type="date" id="startDate">
         </div>
 
         <div>
-          <label>Paper Time / وقت</label>
+          <label id="paperTimeLabel">پیپر کا وقت</label>
           <input id="paperTime" value="9:00 AM to 12:00 PM">
         </div>
+
       </div>
 
-      <h3>Subjects / مضامین</h3>
+      <h3 id="subjectsTitle">مضامین</h3>
       <div id="subjects"></div>
 
       <div class="actions">
-        <button type="button" id="addSubject">+ Add Subject</button>
-        <button type="button" class="secondary" id="generate">Update Date Sheet</button>
+        <button type="button" id="addSubject">+ مضمون شامل کریں</button>
+        <button type="button" class="secondary" id="generate">ڈیٹ شیٹ اپڈیٹ کریں</button>
       </div>
 
-      <p class="notice">Har subject ki date edit ki ja sakti hai. Date sheet neeche update hogi.</p>
+      <p class="notice" id="helpText">
+        ہر مضمون کی تاریخ تبدیل کی جا سکتی ہے۔ ڈیٹ شیٹ نیچے اپڈیٹ ہوگی۔
+      </p>
     </div>
   </div>
 
   <section class="sheet" id="sheet">
     <img id="logoSheet" alt="School logo">
+
     <h2 id="schoolTitle">آپ کے اسکول کا نام</h2>
     <h3 id="examTitle">سالانہ امتحان</h3>
 
     <div class="meta">
-      <strong><span id="classLabel">جماعت</span>: <span id="classOut">5th Class</span></strong>
-      <strong><span id="sessionLabel">تعلیمی سال</span>: <span id="sessionOut">2026-2027</span></strong>
+      <strong>
+        <span id="classLabel">جماعت</span>:
+        <span id="classOut">5th Class</span>
+      </strong>
+
+      <strong>
+        <span id="sessionLabel">تعلیمی سال</span>:
+        <span id="sessionOut">2026-2027</span>
+      </strong>
     </div>
 
     <table>
@@ -162,6 +260,7 @@ gap:20px;margin-top:40px}
           <th id="timeHead">وقت</th>
         </tr>
       </thead>
+
       <tbody id="tableBody"></tbody>
     </table>
 
@@ -172,42 +271,125 @@ gap:20px;margin-top:40px}
   </section>
 
   <div class="panel no-print">
-    <h3>Download / Print</h3>
-    <button type="button" id="pngBtn">Download PNG</button>
-    <button type="button" id="printBtn">Print / Save PDF</button>
-    <p class="notice">PNG download ke liye html2canvas library aur internet connection zaroori hain.</p>
+    <h3 id="downloadTitle">ڈاؤن لوڈ / پرنٹ</h3>
+
+    <button type="button" id="pngBtn">PNG ڈاؤن لوڈ کریں</button>
+    <button type="button" id="printBtn">پرنٹ / PDF محفوظ کریں</button>
+
+    <p class="notice" id="downloadHelp">
+      PNG ڈاؤن لوڈ کرنے کے لیے انٹرنیٹ ضروری ہے۔
+    </p>
   </div>
+
 </div>
 
 <script>
 (function(){
+
   const $ = id => document.getElementById(id);
+
   let logoData = "";
   let subjectCounter = 0;
 
   const words = {
+
     ur: {
-      class:"جماعت", session:"تعلیمی سال", sr:"نمبر",
-      subject:"مضمون", date:"تاریخ", day:"دن", time:"وقت",
-      teacher:"دستخط استاد", principal:"دستخط پرنسپل",
+      appTitle:"اسکول ڈیٹ شیٹ جنریٹر",
+      settingsTitle:"سیٹنگز",
+      languageLabel:"زبان",
+      schoolLabel:"اسکول کا نام",
+      logoLabel:"اسکول کا لوگو",
+      removeLogo:"لوگو ہٹائیں",
+      examLabel:"امتحان کا نام",
+      classInputLabel:"جماعت",
+      sessionInputLabel:"تعلیمی سال",
+      startDateLabel:"آغاز کی تاریخ",
+      paperTimeLabel:"پیپر کا وقت",
+      subjectsTitle:"مضامین",
+      addSubject:"+ مضمون شامل کریں",
+      generate:"ڈیٹ شیٹ اپڈیٹ کریں",
+      helpText:"ہر مضمون کی تاریخ تبدیل کی جا سکتی ہے۔ ڈیٹ شیٹ نیچے اپڈیٹ ہوگی۔",
+      downloadTitle:"ڈاؤن لوڈ / پرنٹ",
+      pngBtn:"PNG ڈاؤن لوڈ کریں",
+      printBtn:"پرنٹ / PDF محفوظ کریں",
+      downloadHelp:"PNG ڈاؤن لوڈ کرنے کے لیے انٹرنیٹ ضروری ہے۔",
+      class:"جماعت",
+      session:"تعلیمی سال",
+      sr:"نمبر",
+      subject:"مضمون",
+      date:"تاریخ",
+      day:"دن",
+      time:"وقت",
+      teacher:"دستخط استاد",
+      principal:"دستخط پرنسپل",
       defaultSchool:"آپ کے اسکول کا نام",
       defaultExam:"سالانہ امتحان",
+      defaultClass:"پانچویں جماعت",
+      defaultTime:"صبح 9 بجے سے دوپہر 12 بجے تک",
+      nameLabel:"مضمون کا نام",
+      namePlaceholder:"مضمون لکھیں",
+      dateLabel:"پیپر کی تاریخ",
+      remove:"حذف کریں",
+      noDate:"—",
+      pngError:"PNG لائبریری لوڈ نہیں ہوئی۔ انٹرنیٹ چیک کریں۔",
+      pngFail:"PNG نہیں بنی۔ انٹرنیٹ چیک کرکے دوبارہ کوشش کریں۔",
       subjects:["اردو","انگریزی","ریاضی","سائنس","اسلامیات"],
       days:["اتوار","پیر","منگل","بدھ","جمعرات","جمعہ","ہفتہ"]
     },
+
     en: {
-      class:"Class", session:"Academic Session", sr:"No.",
-      subject:"Subject", date:"Date", day:"Day", time:"Time",
-      teacher:"Teacher's Signature", principal:"Principal's Signature",
+      appTitle:"School Date Sheet Generator",
+      settingsTitle:"Settings",
+      languageLabel:"Language",
+      schoolLabel:"School Name",
+      logoLabel:"School Logo",
+      removeLogo:"Remove Logo",
+      examLabel:"Exam Name",
+      classInputLabel:"Class",
+      sessionInputLabel:"Academic Session",
+      startDateLabel:"Start Date",
+      paperTimeLabel:"Paper Time",
+      subjectsTitle:"Subjects",
+      addSubject:"+ Add Subject",
+      generate:"Update Date Sheet",
+      helpText:"You can edit each subject's date. The date sheet updates below.",
+      downloadTitle:"Download / Print",
+      pngBtn:"Download PNG",
+      printBtn:"Print / Save PDF",
+      downloadHelp:"An internet connection is required to download PNG.",
+      class:"Class",
+      session:"Academic Session",
+      sr:"No.",
+      subject:"Subject",
+      date:"Date",
+      day:"Day",
+      time:"Time",
+      teacher:"Teacher's Signature",
+      principal:"Principal's Signature",
       defaultSchool:"Your School Name",
       defaultExam:"Annual Examination",
+      defaultClass:"5th Class",
+      defaultTime:"9:00 AM to 12:00 PM",
+      nameLabel:"Subject Name",
+      namePlaceholder:"Enter subject",
+      dateLabel:"Paper Date",
+      remove:"Remove",
+      noDate:"—",
+      pngError:"The PNG library did not load. Check your internet connection.",
+      pngFail:"PNG could not be created. Check your internet and try again.",
       subjects:["Urdu","English","Mathematics","Science","Islamiyat"],
       days:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
     }
+
   };
 
-  function currentLang(){return $("language").value}
-  function tr(key){return words[currentLang()][key]}
+  function currentLang(){
+    return $("language").value;
+  }
+
+  function tr(key){
+    return words[currentLang()][key];
+  }
 
   function dateValue(date){
     const y=date.getFullYear();
@@ -217,15 +399,20 @@ gap:20px;margin-top:40px}
   }
 
   function addDays(dateString,n){
-    const d=dateString?new Date(dateString+"T12:00:00"):new Date();
+    const d=dateString
+      ?new Date(dateString+"T12:00:00")
+      :new Date();
+
     d.setDate(d.getDate()+n);
     return dateValue(d);
   }
 
   function addSubject(name="",date=""){
     subjectCounter++;
+
     const id=subjectCounter;
     const box=document.createElement("div");
+
     box.className="panel";
     box.dataset.subjectRow="1";
 
@@ -233,21 +420,23 @@ gap:20px;margin-top:40px}
     grid.className="grid";
 
     const nameLabel=document.createElement("label");
-    nameLabel.textContent=currentLang()==="ur"?"مضمون کا نام":"Subject Name";
+    nameLabel.textContent=tr("nameLabel");
 
     const nameInput=document.createElement("input");
     nameInput.className="subjectName";
     nameInput.value=name;
-    nameInput.placeholder=currentLang()==="ur"?"مضمون لکھیں":"Enter subject";
+    nameInput.placeholder=tr("namePlaceholder");
+
     nameLabel.appendChild(nameInput);
 
     const dateLabel=document.createElement("label");
-    dateLabel.textContent=currentLang()==="ur"?"پیپر کی تاریخ":"Paper Date";
+    dateLabel.textContent=tr("dateLabel");
 
     const dateInput=document.createElement("input");
     dateInput.type="date";
     dateInput.className="subjectDate";
     dateInput.value=date||addDays($("startDate").value,id-1);
+
     dateLabel.appendChild(dateInput);
 
     grid.append(nameLabel,dateLabel);
@@ -255,56 +444,123 @@ gap:20px;margin-top:40px}
     const remove=document.createElement("button");
     remove.type="button";
     remove.className="remove";
-    remove.textContent=currentLang()==="ur"?"حذف کریں":"Remove";
-    remove.onclick=()=>{box.remove();renderSheet()};
+    remove.textContent=tr("remove");
+
+    remove.onclick=()=>{
+      box.remove();
+      renderSheet();
+    };
 
     box.append(grid,remove);
     $("subjects").appendChild(box);
   }
 
-  function renderSheet(){
+  function updateInterface(){
+
     const lang=currentLang();
+    const w=words[lang];
 
     document.documentElement.lang=lang;
     document.documentElement.dir=lang==="ur"?"rtl":"ltr";
 
-    $("schoolTitle").textContent=$("school").value.trim()||tr("defaultSchool");
-    $("examTitle").textContent=$("exam").value.trim()||tr("defaultExam");
-    $("classOut").textContent=$("className").value;
-    $("sessionOut").textContent=$("session").value;
+    document.title=w.appTitle;
+
+    const labels=[
+      "appTitle","settingsTitle","languageLabel","schoolLabel",
+      "logoLabel","removeLogo","examLabel","classInputLabel",
+      "sessionInputLabel","startDateLabel","paperTimeLabel",
+      "subjectsTitle","addSubject","generate","helpText",
+      "downloadTitle","pngBtn","printBtn","downloadHelp"
+    ];
+
+    labels.forEach(id=>{
+      $(id).textContent=w[id];
+    });
 
     const map={
-      class:"classLabel",session:"sessionLabel",sr:"srHead",
-      subject:"subjectHead",date:"dateHead",day:"dayHead",
-      time:"timeHead",teacher:"teacherSign",principal:"principalSign"
+      class:"classLabel",
+      session:"sessionLabel",
+      sr:"srHead",
+      subject:"subjectHead",
+      date:"dateHead",
+      day:"dayHead",
+      time:"timeHead",
+      teacher:"teacherSign",
+      principal:"principalSign"
     };
 
     Object.keys(map).forEach(key=>{
-      $(map[key]).textContent=tr(key);
+      $(map[key]).textContent=w[key];
     });
+
+    document.querySelectorAll("[data-subject-row]").forEach(row=>{
+      row.querySelector("label").childNodes[0].textContent=w.nameLabel;
+
+      const dateLabel=row.querySelectorAll("label")[1];
+      dateLabel.childNodes[0].textContent=w.dateLabel;
+
+      row.querySelector(".subjectName").placeholder=w.namePlaceholder;
+      row.querySelector(".remove").textContent=w.remove;
+    });
+
+    renderSheet();
+  }
+
+  function renderSheet(){
+
+    const lang=currentLang();
+    const w=words[lang];
+
+    document.documentElement.lang=lang;
+    document.documentElement.dir=lang==="ur"?"rtl":"ltr";
+
+    $("schoolTitle").textContent=
+      $("school").value.trim()||w.defaultSchool;
+
+    $("examTitle").textContent=
+      $("exam").value.trim()||w.defaultExam;
+
+    $("classOut").textContent=
+      $("className").value||w.defaultClass;
+
+    $("sessionOut").textContent=$("session").value;
 
     const tbody=$("tableBody");
     tbody.replaceChildren();
 
     document.querySelectorAll("[data-subject-row]").forEach((row,i)=>{
+
       const name=row.querySelector(".subjectName").value.trim();
       const dateStr=row.querySelector(".subjectDate").value;
+
       if(!name&&!dateStr)return;
 
       const trEl=document.createElement("tr");
-      const date=dateStr?new Date(dateStr+"T12:00:00"):null;
+
+      const date=dateStr
+        ?new Date(dateStr+"T12:00:00")
+        :null;
 
       const dateText=date
         ?date.toLocaleDateString(lang==="ur"?"ur-PK":"en-GB")
-        :"—";
+        :w.noDate;
 
-      const dayText=date?words[lang].days[date.getDay()]:"—";
+      const dayText=date
+        ?w.days[date.getDay()]
+        :w.noDate;
 
-      [String(i+1),name||"—",dateText,dayText,$("paperTime").value||"—"]
-      .forEach(value=>{
+      [
+        String(i+1),
+        name||w.noDate,
+        dateText,
+        dayText,
+        $("paperTime").value||w.noDate
+      ].forEach(value=>{
+
         const td=document.createElement("td");
         td.textContent=value;
         trEl.appendChild(td);
+
       });
 
       tbody.appendChild(trEl);
@@ -312,6 +568,7 @@ gap:20px;margin-top:40px}
 
     $("logoSheet").src=logoData;
     $("logoSheet").style.display=logoData?"block":"none";
+
     $("logoPreview").src=logoData;
     $("logoPreview").hidden=!logoData;
   }
@@ -323,8 +580,12 @@ gap:20px;margin-top:40px}
 
   $("generate").addEventListener("click",renderSheet);
 
-  ["school","exam","className","session","paperTime","startDate"].forEach(id=>{
+  [
+    "school","exam","className","session","paperTime","startDate"
+  ].forEach(id=>{
+
     $(id).addEventListener("input",()=>{
+
       if(id==="startDate"){
         document.querySelectorAll(".subjectDate").forEach((el,i)=>{
           if(!el.dataset.manuallyChanged){
@@ -332,41 +593,108 @@ gap:20px;margin-top:40px}
           }
         });
       }
+
       renderSheet();
     });
+
   });
 
   $("subjects").addEventListener("change",e=>{
+
     if(e.target.classList.contains("subjectDate")){
       e.target.dataset.manuallyChanged="1";
     }
+
     renderSheet();
   });
 
   $("subjects").addEventListener("input",renderSheet);
 
   $("language").addEventListener("change",()=>{
+
+    const oldLang=window.previousDateSheetLanguage||"ur";
+    const newLang=currentLang();
+
+    const oldWords=words[oldLang];
+    const newWords=words[newLang];
+
+    // Default school name ko translate karein
+    if($("school").value.trim()===oldWords.defaultSchool){
+      $("school").value=newWords.defaultSchool;
+    }
+
+    // Default exam name ko translate karein
+    if($("exam").value.trim()===oldWords.defaultExam){
+      $("exam").value=newWords.defaultExam;
+    }
+
+    // Default class ko translate karein
+    if($("className").value.trim()===oldWords.defaultClass){
+      $("className").value=newWords.defaultClass;
+    }
+
+    // Default paper time ko translate karein
+    if($("paperTime").value.trim()===oldWords.defaultTime){
+      $("paperTime").value=newWords.defaultTime;
+    }
+
+    const translations={
+      "اردو":"Urdu",
+      "انگریزی":"English",
+      "ریاضی":"Mathematics",
+      "سائنس":"Science",
+      "اسلامیات":"Islamiyat",
+      "Urdu":"اردو",
+      "English":"انگریزی",
+      "Mathematics":"ریاضی",
+      "Science":"سائنس",
+      "Islamiyat":"اسلامیات"
+    };
+
     const existing=[
       ...document.querySelectorAll("[data-subject-row]")
     ].map(row=>({
+
       name:row.querySelector(".subjectName").value,
-      date:row.querySelector(".subjectDate").value
+      date:row.querySelector(".subjectDate").value,
+      manuallyChanged:row.querySelector(".subjectDate").dataset.manuallyChanged
+
     }));
 
     $("subjects").replaceChildren();
-    existing.forEach(s=>addSubject(s.name,s.date));
-    renderSheet();
+
+    existing.forEach(s=>{
+
+      const translatedName=translations[s.name.trim()]||s.name;
+
+      addSubject(translatedName,s.date);
+
+      const lastRow=$("subjects").lastElementChild;
+      const dateInput=lastRow.querySelector(".subjectDate");
+
+      if(s.manuallyChanged){
+        dateInput.dataset.manuallyChanged="1";
+      }
+
+    });
+
+    window.previousDateSheetLanguage=newLang;
+
+    updateInterface();
   });
 
   $("logoFile").addEventListener("change",e=>{
+
     const file=e.target.files[0];
     if(!file)return;
 
     const reader=new FileReader();
+
     reader.onload=()=>{
       logoData=reader.result;
       renderSheet();
     };
+
     reader.readAsDataURL(file);
   });
 
@@ -382,14 +710,16 @@ gap:20px;margin-top:40px}
   });
 
   $("pngBtn").addEventListener("click",async()=>{
+
     renderSheet();
 
     if(typeof window.html2canvas!=="function"){
-      alert("PNG ke liye html2canvas library load nahi hui. Internet connection check karein.");
+      alert(tr("pngError"));
       return;
     }
 
     try{
+
       await document.fonts.ready;
 
       const canvas=await window.html2canvas($("sheet"),{
@@ -402,19 +732,30 @@ gap:20px;margin-top:40px}
       link.download="school-date-sheet.png";
       link.href=canvas.toDataURL("image/png");
       link.click();
+
     }catch(err){
-      alert("PNG nahi bani. Internet check karke dobara koshish karein.");
+      alert(tr("pngFail"));
     }
+
   });
 
+  // Shuru mein Urdu defaults
   const today=dateValue(new Date());
+
   $("startDate").value=today;
+  $("school").value=words.ur.defaultSchool;
+  $("exam").value=words.ur.defaultExam;
+  $("className").value=words.en.defaultClass;
+  $("paperTime").value=words.en.defaultTime;
 
   words.ur.subjects.forEach((name,i)=>{
     addSubject(name,addDays(today,i));
   });
 
-  renderSheet();
+  window.previousDateSheetLanguage="ur";
+
+  updateInterface();
+
 })();
 </script>
 
